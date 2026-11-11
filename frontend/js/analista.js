@@ -17,8 +17,25 @@ void (async () => {
     }
   }
 
+  // Ruta permitida: /api seguido de segmentos simples y, opcionalmente, una query (?page=1&size=100&sort=...).
+  const RUTA_API = /^\/api(?:\/[A-Za-z0-9_-]+)*\/?(?:\?[A-Za-z0-9_=&,%.-]*)?$/;
+
+  /**
+   * El panel sigue los enlaces (_links) que entrega la API, pero solo si apuntan a esta misma API:
+   * mismo origen y ruta bajo /api. Así un enlace manipulado no puede hacer que el navegador
+   * envíe peticiones (con la cookie de sesión) a otro sitio o a otra ruta (request forgery).
+   */
+  function rutaDeLaApi(url) {
+    const destino = new URL(url, location.origin);
+    const ruta = destino.pathname + destino.search;
+    if (destino.origin !== location.origin || !RUTA_API.test(ruta)) {
+      throw new ErrorApi("La API devolvió un enlace no permitido", 0);
+    }
+    return ruta;
+  }
+
   async function api(url, opciones = {}) {
-    const res = await fetch(url, { credentials: "same-origin", ...opciones });
+    const res = await fetch(rutaDeLaApi(url), { credentials: "same-origin", ...opciones });
     if (res.status === 401 || res.status === 403) {
       location.href = "/login.html";
       throw new ErrorApi("Sesión expirada", res.status);
