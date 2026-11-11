@@ -1,8 +1,14 @@
 package com.bdb.katapracticing;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.modulith.core.ApplicationModule;
 import org.springframework.modulith.core.ApplicationModules;
 import org.springframework.modulith.docs.Documenter;
+
+import java.nio.file.Path;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 /**
  * Prueba de arquitectura del monolito modular. Falla si:
@@ -18,7 +24,13 @@ class ModulosTest {
 
     @Test
     void lasFronterasEntreModulosSeRespetan() {
-        modulos.verify();
+        assertThatCode(modulos::verify).doesNotThrowAnyException();
+    }
+
+    @Test
+    void existenLosCuatroModulosEsperados() {
+        assertThat(modulos.stream().map(ApplicationModule::getName))
+                .containsExactlyInAnyOrder("practicantes", "hojasvida", "seguridad", "compartido");
     }
 
     /** Genera los diagramas de módulos (PlantUML) en target/spring-modulith-docs. */
@@ -28,5 +40,7 @@ class ModulosTest {
                 .writeModulesAsPlantUml()
                 .writeIndividualModulesAsPlantUml()
                 .writeModuleCanvases();
+
+        assertThat(Path.of("target", "spring-modulith-docs", "components.puml")).exists();
     }
 }

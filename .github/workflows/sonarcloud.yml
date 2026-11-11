@@ -18,11 +18,11 @@ jobs:
       # Si el secreto aún no existe, las pruebas corren igual y solo se omite el análisis.
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0   # historial completo: SonarCloud lo usa para detectar "código nuevo"
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
@@ -34,6 +34,6 @@ jobs:
 
       - name: Análisis SonarCloud
         if: ${{ env.SONAR_TOKEN != '' }}
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_HOST_URL: https://sonarcloud.io
