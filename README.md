@@ -59,7 +59,7 @@ El **back-end** es un **monolito modular**: una sola aplicación Spring Boot div
 
 | Indicador | Resultado | Evidencia |
 |---|---|---|
-| Pruebas automatizadas | **98**, todas en verde | [Evidencia E8](#e8-github-actions), [`PracticanteApiTest`](backend/src/test/java/com/bdb/katapracticing/PracticanteApiTest.java) |
+| Pruebas automatizadas | **109**, todas en verde | [Evidencia E8](#e8-github-actions), [`PracticanteApiTest`](backend/src/test/java/com/bdb/katapracticing/PracticanteApiTest.java) |
 | Cobertura (JaCoCo) | **100 %** de instrucciones, ramas y líneas (mínimo exigido: 90 %) | [Evidencia E10](#e10-jacoco) |
 | Calidad (SonarCloud) | Quality Gate **aprobado**, 0 bugs, 0 vulnerabilidades, 0 % de duplicación | [Evidencia E9](#e9-sonarcloud) |
 | Fronteras de la arquitectura | Verificadas por [`ModulosTest`](backend/src/test/java/com/bdb/katapracticing/ModulosTest.java#L26) | [Sección 4.2](#42-estilo-arquitectónico-monolito-modular) |
@@ -964,7 +964,7 @@ mvn verify      # pruebas + cobertura (hoy 100 %); falla si la cobertura baja de
 | Integración (API completa) | [`PracticanteApiTest`](backend/src/test/java/com/bdb/katapracticing/PracticanteApiTest.java) | Flujo completo; semestre 10 sí y 11 no; seguridad (401, CSRF); **HATEOAS** (raíz, enlaces por estado, HAL-FORMS, paginación); **integridad** (409, 412, 304); 400/404/405/415; contrato OpenAPI |
 | Unitaria (servicio) | [`PracticanteServiceTest`](backend/src/test/java/com/bdb/katapracticing/practicantes/aplicacion/PracticanteServiceTest.java) | Registro, correo duplicado (también en carrera), limpieza de archivos huérfanos, versión, filtros |
 | Unitaria (dominio) | [`PracticanteTest`](backend/src/test/java/com/bdb/katapracticing/practicantes/dominio/PracticanteTest.java) | Normalización, semestre fuera de rango (0, 11, 12), transiciones, versión |
-| Unitaria (concurrencia) | [`ETagsTest`](backend/src/test/java/com/bdb/katapracticing/compartido/ETagsTest.java) | `If-Match` fuerte, débil, comodín y ausente |
+| Unitaria (concurrencia) | [`ETagsTest`](backend/src/test/java/com/bdb/katapracticing/compartido/ETagsTest.java) | `If-Match` e `If-None-Match`: fuertes, débiles, múltiples, comodín y ausentes |
 | Unitaria (errores HTTP) | [`GlobalExceptionHandlerTest`](backend/src/test/java/com/bdb/katapracticing/compartido/web/GlobalExceptionHandlerTest.java) | 413 configurable; código HTTP de cada tipo de error; mensajes de 404/405/415 |
 | Módulo `hojasvida` | [`HojasVidaServiceTest`](backend/src/test/java/com/bdb/katapracticing/hojasvida/HojasVidaServiceTest.java) y pruebas de `internal` | Reglas del PDF, nombres, *path traversal*, fallos de disco |
 
@@ -1053,7 +1053,7 @@ Cada insignia del encabezado tiene su captura de respaldo:
 
 #### E8. GitHub Actions
 
-Ejecuciones del workflow "Pruebas y SonarCloud" en `main`, todas en verde. Cada ejecución corre `mvn verify` (98 pruebas y cobertura mínima del 90 %) y envía el análisis a SonarCloud. [Ver en GitHub](https://github.com/AnaFiquitiva/kata-practicing/actions).
+Ejecuciones del workflow "Pruebas y SonarCloud" en `main`, todas en verde. Cada ejecución corre `mvn verify` (109 pruebas y cobertura mínima del 90 %) y envía el análisis a SonarCloud. [Ver en GitHub](https://github.com/AnaFiquitiva/kata-practicing/actions).
 
 ![GitHub Actions](docs/capturas/09-github-actions.png)
 

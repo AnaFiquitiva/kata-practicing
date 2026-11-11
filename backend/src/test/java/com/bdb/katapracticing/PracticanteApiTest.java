@@ -361,6 +361,17 @@ class PracticanteApiTest {
     }
 
     @Test
+    void ifNoneMatchConVersionVieja_devuelve200ConLaRepresentacionNueva() throws Exception {
+        long id = registrar("Eva", "eva@correo.com");
+        cambiarEstado(id, "VIABLE", "\"0\"").andExpect(status().isOk());
+
+        mvc.perform(get("/api/practicantes/{id}", id).with(analista()).header(HttpHeaders.IF_NONE_MATCH, "\"0\""))
+                .andExpect(status().isOk())
+                .andExpect(header().string(HttpHeaders.ETAG, "\"1\""))
+                .andExpect(jsonPath("$.estado").value("VIABLE"));
+    }
+
+    @Test
     void patchConTipoDeContenidoNoSoportado_devuelve415() throws Exception {
         mvc.perform(patch("/api/practicantes/1/estado").with(analista()).with(csrf())
                         .contentType(MediaType.TEXT_PLAIN).content("VIABLE"))

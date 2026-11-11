@@ -42,7 +42,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
@@ -141,11 +140,13 @@ public class PracticanteController {
     @ApiResponse(responseCode = "404", description = "No existe",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<PracticanteResponse>> obtener(@PathVariable Long id,
-                                                                    @Parameter(hidden = true) WebRequest peticion) {
+    public ResponseEntity<EntityModel<PracticanteResponse>> obtener(
+            @PathVariable Long id,
+            @Parameter(in = ParameterIn.HEADER, description = "ETag que el cliente ya tiene, por ejemplo \"0\"")
+            @RequestHeader(value = HttpHeaders.IF_NONE_MATCH, required = false) String ifNoneMatch) {
         Practicante practicante = servicio.obtener(id);
         String etag = ETags.de(practicante.getVersion());
-        if (peticion.checkNotModified(etag)) {
+        if (ETags.coincide(ifNoneMatch, practicante.getVersion())) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
         }
         return ResponseEntity.ok().eTag(etag).body(ensamblador.toModel(practicante));

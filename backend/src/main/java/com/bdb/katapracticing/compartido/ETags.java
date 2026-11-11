@@ -26,15 +26,37 @@ public final class ETags {
         if (ifMatch == null || ifMatch.isBlank() || COMODIN.equals(ifMatch.trim())) {
             return null;
         }
-        String valor = ifMatch.trim();
-        if (valor.startsWith(PREFIJO_DEBIL)) {
-            valor = valor.substring(PREFIJO_DEBIL.length());
-        }
-        valor = valor.replace("\"", "");
         try {
-            return Long.parseLong(valor);
+            return Long.parseLong(limpiar(ifMatch));
         } catch (NumberFormatException e) {
             throw new PrecondicionFallidaException();
         }
+    }
+
+    /**
+     * ¿Alguna de las ETags de {@code If-None-Match} corresponde a la versión actual? Si es así, el cliente
+     * ya tiene la representación vigente y se responde 304. Acepta varias ETags separadas por coma,
+     * ETags débiles ({@code W/"3"}) y el comodín {@code *}.
+     */
+    public static boolean coincide(String ifNoneMatch, long version) {
+        if (ifNoneMatch == null || ifNoneMatch.isBlank()) {
+            return false;
+        }
+        String actual = String.valueOf(version);
+        for (String etag : ifNoneMatch.split(",")) {
+            if (COMODIN.equals(etag.trim()) || actual.equals(limpiar(etag))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Quita espacios, el prefijo débil {@code W/} y las comillas: {@code W/"3"} → {@code 3}. */
+    private static String limpiar(String etag) {
+        String valor = etag.trim();
+        if (valor.startsWith(PREFIJO_DEBIL)) {
+            valor = valor.substring(PREFIJO_DEBIL.length());
+        }
+        return valor.replace("\"", "");
     }
 }
