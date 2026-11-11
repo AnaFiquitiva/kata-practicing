@@ -29,8 +29,24 @@ class GlobalExceptionHandlerTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"DATO_INVALIDO, BAD_REQUEST", "CONFLICTO, CONFLICT", "NO_ENCONTRADO, NOT_FOUND"})
+    @CsvSource({"DATO_INVALIDO, BAD_REQUEST", "CONFLICTO, CONFLICT", "NO_ENCONTRADO, NOT_FOUND",
+            "PRECONDICION_FALLIDA, PRECONDITION_FAILED"})
     void cadaTipoDeErrorTieneSuCodigoHttp(TipoError tipo, HttpStatus esperado) {
         assertThat(GlobalExceptionHandler.estadoHttp(tipo)).isEqualTo(esperado);
+    }
+
+    @Test
+    void edicionSimultaneaEIntegridad_responden409() {
+        assertThat(manejador.edicionSimultanea().getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+        assertThat(manejador.integridadDeDatos().getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @ParameterizedTest
+    @CsvSource({"METHOD_NOT_ALLOWED, Método HTTP no permitido para este recurso",
+            "UNSUPPORTED_MEDIA_TYPE, Tipo de contenido no soportado",
+            "NOT_FOUND, El recurso solicitado no existe",
+            "BAD_REQUEST, Solicitud inválida"})
+    void erroresDeProtocolo_tienenMensajeEnEspanol(HttpStatus estado, String mensaje) {
+        assertThat(GlobalExceptionHandler.mensajeDeProtocolo(estado)).isEqualTo(mensaje);
     }
 }

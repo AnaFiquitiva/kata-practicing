@@ -4,6 +4,7 @@
   const boton = document.getElementById("btn-enviar");
   const selectSemestre = document.getElementById("semestre");
   const MAX_BYTES = 5 * 1024 * 1024;
+  const SEMESTRE_MAXIMO = 10; // mismo límite que valida la API (Practicante.SEMESTRE_MAXIMO)
 
   /**
    * usuario@dominio.tld, sin espacios, con un solo "@", etiquetas de dominio no vacías y TLD de 2+ letras.
@@ -17,7 +18,8 @@
     return etiquetas.length >= 2 && etiquetas.every(Boolean) && etiquetas.at(-1).length >= 2;
   }
 
-  for (let i = 1; i <= 12; i++) selectSemestre.append(el("option", { value: i }, `${i}.º semestre`));
+  // Las opciones (1 a 10) están en el HTML. Por si el HTML llegara con opciones de más, se retiran las inválidas.
+  [...selectSemestre.options].filter(o => o.value && Number(o.value) > SEMESTRE_MAXIMO).forEach(o => o.remove());
 
   function marcarError(campo, mensaje) {
     const contenedor = form.querySelector(`[name="${campo}"]`)?.closest(".campo");
@@ -40,6 +42,9 @@
     else if (!esCorreoValido(correo)) errores.correo = "Ingresa un correo electrónico válido";
     if (!carrera) errores.carrera = "La carrera universitaria es obligatoria";
     if (!semestre) errores.semestre = "Selecciona tu semestre actual";
+    else if (Number(semestre) < 1 || Number(semestre) > SEMESTRE_MAXIMO) {
+      errores.semestre = `El semestre debe estar entre 1 y ${SEMESTRE_MAXIMO}`;
+    }
     if (!archivo) errores.hojaVida = "Adjunta tu hoja de vida en PDF";
     else if (!archivo.name.toLowerCase().endsWith(".pdf")) errores.hojaVida = "El archivo debe ser PDF";
     else if (archivo.size > MAX_BYTES) errores.hojaVida = "El archivo no puede superar 5 MB";

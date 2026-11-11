@@ -1,5 +1,6 @@
 package com.bdb.katapracticing.practicantes.aplicacion;
 
+import com.bdb.katapracticing.compartido.PrecondicionFallidaException;
 import com.bdb.katapracticing.compartido.RecursoNoEncontradoException;
 import com.bdb.katapracticing.hojasvida.HojaVidaDescargable;
 import com.bdb.katapracticing.hojasvida.HojaVidaGuardada;
@@ -9,11 +10,11 @@ import com.bdb.katapracticing.practicantes.dominio.EstadoPracticante;
 import com.bdb.katapracticing.practicantes.dominio.Practicante;
 import com.bdb.katapracticing.practicantes.persistencia.PracticanteRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 /** Casos de uso del proceso de selección: registrar, consultar y decidir sobre un practicante. */
 @Service
@@ -52,10 +53,10 @@ public class PracticanteService {
     }
 
     @Transactional(readOnly = true)
-    public List<Practicante> listar(EstadoPracticante estado) {
+    public Page<Practicante> listar(EstadoPracticante estado, Pageable pagina) {
         return estado == null
-                ? repositorio.findAllByOrderByFechaRegistroDesc()
-                : repositorio.findByEstadoOrderByFechaRegistroDesc(estado);
+                ? repositorio.findAll(pagina)
+                : repositorio.findByEstado(estado, pagina);
     }
 
     @Transactional(readOnly = true)
@@ -64,11 +65,20 @@ public class PracticanteService {
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe el practicante con id " + id));
     }
 
+    /**
+     * @param versionEsperada versión que el cliente leyó (cabecera {@code If-Match}) o {@code null}. Si viene y ya no es la
+     *                        actual, se rechaza con 412 en lugar de pisar el cambio de otro analista.
+     */
     @Transactional
-    public Practicante actualizarEstado(Long id, EstadoPracticante estado) {
+    public Practicante actualizarEstado(Long id, EstadoPracticante estado, Long versionEsperada) {
         Practicante practicante = obtener(id);
+        if (versionEsperada != null && !practicante.tieneVersion(versionEsperada)) {
+            throw new PrecondicionFallidaException();
+        }
         practicante.cambiarEstado(estado);
-        return practicante; // entidad gestionada: JPA guarda el cambio al cerrar la transacción
+        // flush: así la versión nueva (ETag) ya viene calculada en la respuesta y cualquier
+        // conflicto de bloqueo optimista se detecta aquí, dentro de la transacción.
+        return repositorio.saveAndFlush(practicante);
     }
 
     @Transactional(readOnly = true)

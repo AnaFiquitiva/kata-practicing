@@ -4,5 +4,6 @@ package com.bdb.katapracticing.compartido;
 public enum TipoError {
     DATO_INVALIDO,
     CONFLICTO,
-    NO_ENCONTRADO
+    NO_ENCONTRADO,
+    PRECONDICION_FALLIDA
 }

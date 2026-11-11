@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import org.hibernate.annotations.Check;
 
 import java.time.LocalDateTime;
 import java.util.Locale;
@@ -18,12 +20,18 @@ import java.util.Objects;
  * Practicante que se postula. La entidad protege sus propias reglas:
  * nace siempre en PENDIENTE, con el correo normalizado, y cada cambio de estado
  * queda fechado. Por eso no expone setters.
+ * <p>
+ * Integridad de datos en tres capas: validación del formulario (web), invariantes de esta entidad
+ * (dominio) y restricciones de la base de datos (NOT NULL, UNIQUE, CHECK y versión optimista).
  */
 @Entity
 @Table(name = "practicantes")
+@Check(name = "ck_practicantes_semestre", constraints = "semestre BETWEEN 1 AND 10")
 public class Practicante {
 
     public static final int LONGITUD_MAXIMA_TEXTO = 120;
+    public static final int SEMESTRE_MINIMO = 1;
+    public static final int SEMESTRE_MAXIMO = 10;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,6 +66,14 @@ public class Practicante {
 
     private LocalDateTime fechaActualizacionEstado;
 
+    /**
+     * Bloqueo optimista: JPA incrementa la versión en cada cambio y rechaza la escritura si otra
+     * transacción la modificó antes (dos analistas decidiendo a la vez). Se publica como ETag.
+     */
+    @Version
+    @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0 NOT NULL")
+    private long version;
+
     /** Requerido por JPA. */
     protected Practicante() {
     }
@@ -80,7 +96,7 @@ public class Practicante {
                 Objects.requireNonNull(nombreCompleto, "nombreCompleto").trim(),
                 normalizarCorreo(correo),
                 Objects.requireNonNull(carrera, "carrera").trim(),
-                semestre,
+                validarSemestre(semestre),
                 Objects.requireNonNull(hojaVidaNombreOriginal, "hojaVidaNombreOriginal"),
                 Objects.requireNonNull(hojaVidaArchivo, "hojaVidaArchivo"));
     }
@@ -90,10 +106,29 @@ public class Practicante {
         return Objects.requireNonNull(correo, "correo").trim().toLowerCase(Locale.ROOT);
     }
 
-    /** Decisión del analista: el estado y su fecha cambian siempre juntos. */
+    private static int validarSemestre(int semestre) {
+        if (semestre < SEMESTRE_MINIMO || semestre > SEMESTRE_MAXIMO) {
+            throw new SemestreFueraDeRangoException();
+        }
+        return semestre;
+    }
+
+    /**
+     * Decisión del analista: el estado y su fecha cambian siempre juntos, y solo hacia
+     * un estado permitido por {@link EstadoPracticante#transicionesPermitidas()}.
+     */
     public void cambiarEstado(EstadoPracticante nuevoEstado) {
-        this.estado = Objects.requireNonNull(nuevoEstado, "El estado es obligatorio");
+        Objects.requireNonNull(nuevoEstado, "El estado es obligatorio");
+        if (!estado.puedeCambiarA(nuevoEstado)) {
+            throw new TransicionDeEstadoInvalidaException(estado, nuevoEstado);
+        }
+        this.estado = nuevoEstado;
         this.fechaActualizacionEstado = LocalDateTime.now();
+    }
+
+    /** ¿La versión que conoce el cliente sigue siendo la actual? */
+    public boolean tieneVersion(long versionEsperada) {
+        return version == versionEsperada;
     }
 
     @PrePersist
@@ -139,5 +174,9 @@ public class Practicante {
 
     public LocalDateTime getFechaActualizacionEstado() {
         return fechaActualizacionEstado;
+    }
+
+    public long getVersion() {
+        return version;
     }
 }

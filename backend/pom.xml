@@ -23,6 +23,7 @@
         <sqlite-jdbc.version>3.46.1.3</sqlite-jdbc.version>
         <jacoco.version>0.8.12</jacoco.version>
         <spring-modulith.version>1.2.5</spring-modulith.version>
+        <springdoc.version>2.6.0</springdoc.version>
     </properties>
 
     <dependencyManagement>
@@ -57,6 +58,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!-- REST nivel 3 (HATEOAS): enlaces HAL y plantillas HAL-FORMS en las respuestas -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-hateoas</artifactId>
+        </dependency>
+        <!-- Documentación OpenAPI 3 + Swagger UI (detecta Spring HATEOAS y documenta los _links) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc.version}</version>
         </dependency>
 
         <!-- Base de datos local SQLite -->
@@ -105,6 +117,48 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!--
+              Copia el agente de Byte Buddy (el que usa Mockito para crear mocks) a target/agentes/
+              (ruta relativa y sin barras
+              invertidas, para que funcione igual en Windows, Linux y en GitHub Actions).
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copiar-agente-de-mocks</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>net.bytebuddy</groupId>
+                                    <artifactId>byte-buddy-agent</artifactId>
+                                    <destFileName>byte-buddy-agent.jar</destFileName>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/agentes</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+              Mockito se carga como agente al arrancar la JVM de pruebas, en vez de "dinámicamente":
+              así desaparece la advertencia del JDK 21 ("A Java agent has been loaded dynamically"),
+              que en una versión futura del JDK será un error. @{argLine} conserva el agente de JaCoCo.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>@{argLine} -javaagent:target/agentes/byte-buddy-agent.jar</argLine>
+                </configuration>
             </plugin>
 
             <!-- Cobertura de pruebas: genera target/site/jacoco/jacoco.xml, que lee SonarCloud. -->

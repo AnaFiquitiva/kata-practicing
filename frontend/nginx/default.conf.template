@@ -1,5 +1,13 @@
 # Nginx sirve el front-end y reenvía /api al back-end (Spring Boot).
 # Así navegador, front y API comparten origen (localhost:3000): sin CORS y con cookie de sesión HttpOnly.
+
+# Puerto que usó el navegador (el de la cabecera Host, p. ej. localhost:3000). El back-end lo necesita
+# para construir enlaces HATEOAS absolutos correctos; sin X-Forwarded-Port asumiría el 80.
+map $http_host $puerto_publico {
+    "~:(?<puerto>[0-9]+)$" $puerto;
+    default                80;
+}
+
 server {
     listen 80;
     server_name _;
@@ -14,12 +22,18 @@ server {
     add_header Referrer-Policy "no-referrer" always;
     add_header Content-Security-Policy "default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; frame-ancestors 'none'" always;
 
-    location /api/ {
+    # /api (punto de entrada HATEOAS), /api/** (recursos) y /api/docs (Swagger UI).
+    location /api {
         proxy_pass ${BACKEND_URL};
         proxy_set_header Host $http_host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Port $puerto_publico;
+        # Spring Security también envía estas cabeceras; se ocultan para que no lleguen duplicadas
+        # ("DENY,DENY"). Quedan las de Nginx, definidas arriba para todo el sitio.
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header X-Content-Type-Options;
     }
 
     location / {

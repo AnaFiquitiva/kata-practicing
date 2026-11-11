@@ -9,16 +9,28 @@ void (async () => {
   const DURACION_ALERTA_MS = 4000;
   const avisar = (tipo, texto) => mostrarAlerta(alerta, tipo, texto, DURACION_ALERTA_MS);
 
+  /** Error de la API con su código HTTP (para distinguir, por ejemplo, 412 de un error genérico). */
+  class ErrorApi extends Error {
+    constructor(mensaje, estadoHttp) {
+      super(mensaje);
+      this.estadoHttp = estadoHttp;
+    }
+  }
+
   async function api(url, opciones = {}) {
     const res = await fetch(url, { credentials: "same-origin", ...opciones });
     if (res.status === 401 || res.status === 403) {
       location.href = "/login.html";
-      throw new Error("Sesión expirada");
+      throw new ErrorApi("Sesión expirada", res.status);
     }
     const cuerpo = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(cuerpo.mensaje || "Error inesperado");
+    if (!res.ok) throw new ErrorApi(cuerpo.mensaje || "Error inesperado", res.status);
     return cuerpo;
   }
+
+  // --- HATEOAS: el cliente no arma URLs; sigue los enlaces (_links) que entrega la API. ---
+  const enlace = (recurso, rel) => recurso?._links?.[rel];
+  const REL_ACCION = { PENDIENTE: "marcar-pendiente", VIABLE: "marcar-viable", NO_VIABLE: "marcar-no-viable" };
 
   function badge(est) {
     return el("span", { class: `estado estado--${est}` }, ETIQUETA_ESTADO[est] || est);
@@ -64,8 +76,9 @@ void (async () => {
     $("d-fecha").textContent = formatearFecha(p.fechaRegistro);
     $("d-estado").replaceChildren(badge(p.estado));
     $("d-hv").textContent = p.hojaVidaNombre;
-    $("d-descargar").href = p.hojaVidaUrl;
-    document.querySelectorAll("[data-accion]").forEach(b => (b.disabled = b.dataset.accion === p.estado));
+    $("d-descargar").href = enlace(p, "hoja-vida")?.href ?? "#";
+    // Un botón solo se habilita si la API ofrece el enlace de esa transición para el estado actual.
+    document.querySelectorAll("[data-accion]").forEach(b => (b.disabled = !enlace(p, REL_ACCION[b.dataset.accion])));
   }
 
   function seleccionar(id) {
@@ -75,8 +88,17 @@ void (async () => {
     if (window.matchMedia("(max-width: 900px)").matches) $("detalle").scrollIntoView({ behavior: "smooth" });
   }
 
+  /** Descubre la colección desde la raíz de la API y recorre todas las páginas siguiendo el enlace "next". */
   async function cargar() {
-    estado.practicantes = await api("/api/practicantes");
+    const raiz = await api("/api");
+    let url = enlace(raiz, "practicantes").href.replace(/\{\?[^}]*\}$/, "") + "?size=100";
+    const todos = [];
+    while (url) {
+      const pagina = await api(url);
+      todos.push(...(pagina._embedded?.practicantes ?? []));
+      url = enlace(pagina, "next")?.href;
+    }
+    estado.practicantes = todos;
     actualizarResumen();
     renderTabla();
     renderDetalle();
@@ -84,13 +106,21 @@ void (async () => {
 
   async function cambiarEstado(nuevo) {
     const id = estado.seleccionado;
+    const actual = estado.practicantes.find(p => p.id === id);
+    const accion = enlace(actual, REL_ACCION[nuevo]);
+    if (!accion) return;
     const botones = document.querySelectorAll("[data-accion]");
     botones.forEach(b => (b.disabled = true));
     try {
-      const actualizado = await api(`/api/practicantes/${id}/estado`, {
+      const actualizado = await api(accion.href, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", [estado.csrf.headerName]: estado.csrf.token },
-        body: JSON.stringify({ estado: nuevo }),
+        headers: {
+          "Content-Type": "application/json",
+          // Concurrencia optimista: si otro analista lo cambió primero, la API responde 412.
+          "If-Match": `"${actual.version}"`,
+          [estado.csrf.headerName]: estado.csrf.token,
+        },
+        body: JSON.stringify({ estado: accion.name }),
       });
       estado.practicantes = estado.practicantes.map(p => (p.id === id ? actualizado : p));
       actualizarResumen();
@@ -98,6 +128,8 @@ void (async () => {
       avisar("exito", `${actualizado.nombreCompleto} quedó marcado como "${ETIQUETA_ESTADO[nuevo]}".`);
     } catch (e) {
       avisar("error", e.message);
+      // 409/412: el registro cambió en el servidor; se recarga para mostrar su estado real.
+      if (e.estadoHttp === 409 || e.estadoHttp === 412) await cargar().catch(() => {});
     } finally {
       renderDetalle();
     }

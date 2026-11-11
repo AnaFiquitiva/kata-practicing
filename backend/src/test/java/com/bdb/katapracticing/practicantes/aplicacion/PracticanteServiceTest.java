@@ -1,5 +1,6 @@
 package com.bdb.katapracticing.practicantes.aplicacion;
 
+import com.bdb.katapracticing.compartido.PrecondicionFallidaException;
 import com.bdb.katapracticing.compartido.RecursoNoEncontradoException;
 import com.bdb.katapracticing.hojasvida.ArchivoInvalidoException;
 import com.bdb.katapracticing.hojasvida.HojaVidaGuardada;
@@ -15,8 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mock.web.MockMultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,11 +105,46 @@ class PracticanteServiceTest {
     void actualizarEstado_delegaEnLaEntidad() {
         Practicante existente = Practicante.registrar("Ana", "ana@correo.com", "Sistemas", 8, "cv.pdf", ARCHIVO_INTERNO);
         when(repositorio.findById(1L)).thenReturn(Optional.of(existente));
+        when(repositorio.saveAndFlush(existente)).thenReturn(existente);
 
-        Practicante actualizado = servicio.actualizarEstado(1L, EstadoPracticante.NO_VIABLE);
+        Practicante actualizado = servicio.actualizarEstado(1L, EstadoPracticante.NO_VIABLE, null);
 
         assertThat(actualizado.getEstado()).isEqualTo(EstadoPracticante.NO_VIABLE);
         assertThat(actualizado.getFechaActualizacionEstado()).isNotNull();
+    }
+
+    @Test
+    void actualizarEstado_conVersionVigente_aplicaElCambio() {
+        Practicante existente = Practicante.registrar("Ana", "ana@correo.com", "Sistemas", 8, "cv.pdf", ARCHIVO_INTERNO);
+        when(repositorio.findById(1L)).thenReturn(Optional.of(existente));
+        when(repositorio.saveAndFlush(existente)).thenReturn(existente);
+
+        assertThat(servicio.actualizarEstado(1L, EstadoPracticante.VIABLE, 0L).getEstado())
+                .isEqualTo(EstadoPracticante.VIABLE);
+    }
+
+    @Test
+    void actualizarEstado_conVersionDesactualizada_lanza412YNoCambiaNada() {
+        Practicante existente = Practicante.registrar("Ana", "ana@correo.com", "Sistemas", 8, "cv.pdf", ARCHIVO_INTERNO);
+        when(repositorio.findById(1L)).thenReturn(Optional.of(existente));
+
+        assertThatThrownBy(() -> servicio.actualizarEstado(1L, EstadoPracticante.VIABLE, 7L))
+                .isInstanceOf(PrecondicionFallidaException.class);
+        assertThat(existente.getEstado()).isEqualTo(EstadoPracticante.PENDIENTE);
+        verify(repositorio, never()).saveAndFlush(any());
+    }
+
+    @Test
+    void listar_sinEstado_consultaTodosYConEstado_filtra() {
+        Pageable pagina = PageRequest.of(0, 20);
+        when(repositorio.findAll(pagina)).thenReturn(new PageImpl<>(List.of()));
+        when(repositorio.findByEstado(EstadoPracticante.VIABLE, pagina)).thenReturn(new PageImpl<>(List.of()));
+
+        servicio.listar(null, pagina);
+        servicio.listar(EstadoPracticante.VIABLE, pagina);
+
+        verify(repositorio).findAll(pagina);
+        verify(repositorio).findByEstado(EstadoPracticante.VIABLE, pagina);
     }
 
     @Test

@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  * Seguridad de la API REST. El front-end (Nginx) es un proyecto aparte y solo consume /api/**.
- *  - Público: registrar practicante, token CSRF, login y health check.
+ *  - Público: raíz de la API, registrar practicante, token CSRF, login, documentación y health check.
  *  - Rol ANALISTA: listar, consultar, cambiar estado y descargar hojas de vida.
  * La sesión viaja en una cookie HttpOnly (JSESSIONID) y las escrituras exigen token CSRF.
  */
@@ -47,6 +47,7 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(Rutas.CSRF, Rutas.HEALTH, "/error").permitAll()
+                .requestMatchers(HttpMethod.GET, Rutas.API, Rutas.DOCS + "/**").permitAll()
                 .requestMatchers(HttpMethod.POST, Rutas.PRACTICANTES, Rutas.LOGIN).permitAll()
                 .anyRequest().hasRole(ROL_ANALISTA))
             // Login por API: el front envía usuario/contraseña con fetch y recibe JSON (no redirecciones).
