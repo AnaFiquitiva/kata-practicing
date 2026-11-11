@@ -971,6 +971,7 @@ mvn verify      # pruebas + cobertura; falla si la cobertura baja del 90 %
 - **Integración continua:** [`.github/workflows/sonarcloud.yml`](.github/workflows/sonarcloud.yml) ejecuta `mvn verify` y envía el análisis a SonarCloud en cada *push* y *pull request*. La configuración está en [`sonar-project.properties`](sonar-project.properties).
 - **Build sin advertencias:** el agente de Mockito/Byte Buddy se carga con `-javaagent` ([`pom.xml`](backend/pom.xml#L160)), no dinámicamente, algo que el JDK 21 advierte. El único `WARN` del log es intencional: la prueba de *path traversal* con `../secreto.txt`.
 - **Hallazgos corregidos del primer análisis de SonarCloud:** promesas sin manejar en `analista.js` y `login.js`, una expresión regular con riesgo de ReDoS en `registro.js` y el contenedor que corría como `root`.
+- **Hallazgo corregido al agregar HATEOAS:** SonarCloud detectó un posible *request forgery* (reglas `S5144` y `S8476`) porque el panel seguía los enlaces de la API sin validarlos. Ahora [`rutaDeLaApi`](frontend/js/analista.js) solo permite enlaces del mismo origen bajo `/api`, y el Quality Gate volvió a quedar en **Passed** (commit `43a5d16`).
 
 ---
 
@@ -1047,7 +1048,7 @@ Cada insignia del encabezado tiene su captura de respaldo:
 |---|---|---|---|
 | ![Pruebas y SonarCloud](https://github.com/AnaFiquitiva/kata-practicing/actions/workflows/sonarcloud.yml/badge.svg) | Que el workflow de CI (pruebas, cobertura y análisis) termine bien | Passing | [Evidencia E8](#e8-github-actions) |
 | ![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=AnaFiquitiva_kata-practicing&metric=alert_status) | Que el código cumpla el umbral de calidad de SonarCloud | Passed | [Evidencia E9](#e9-sonarcloud), recuadro "Quality gate" |
-| ![Coverage](https://sonarcloud.io/api/project_badges/measure?project=AnaFiquitiva_kata-practicing&metric=coverage) | Porcentaje de código ejecutado por las pruebas | 100 % en Sonar y 99 % en JaCoCo local | [Evidencia E9](#e9-sonarcloud), recuadro "Coverage", y [Evidencia E10](#e10-jacoco) |
+| ![Coverage](https://sonarcloud.io/api/project_badges/measure?project=AnaFiquitiva_kata-practicing&metric=coverage) | Porcentaje de código ejecutado por las pruebas | 98,4 % en SonarCloud (líneas) y 99 % en JaCoCo (instrucciones) | [Evidencia E9](#e9-sonarcloud), recuadro "Coverage", y [Evidencia E10](#e10-jacoco) |
 | ![Bugs](https://sonarcloud.io/api/project_badges/measure?project=AnaFiquitiva_kata-practicing&metric=bugs) | Errores de código detectados por el análisis estático | 0 | [Evidencia E9](#e9-sonarcloud), recuadro "Reliability" (0 incidencias) |
 
 #### E8. GitHub Actions
@@ -1058,7 +1059,7 @@ Ejecuciones del workflow "Pruebas y SonarCloud" en `main`, todas en verde. Cada 
 
 #### E9. SonarCloud
 
-Quality Gate **Passed**. Security, Reliability (bugs) y Maintainability con **0 incidencias** y calificación **A**, cobertura del **100 %** y **0 %** de duplicación. [Ver en SonarCloud](https://sonarcloud.io/summary/overall?id=AnaFiquitiva_kata-practicing).
+Quality Gate **Passed**. Security, Reliability (bugs) y Maintainability con **0 incidencias** y calificación **A**, cobertura del **98,4 %** y **0 %** de duplicación, analizando el commit `43a5d16`. [Ver en SonarCloud](https://sonarcloud.io/summary/overall?id=AnaFiquitiva_kata-practicing).
 
 ![SonarCloud](docs/capturas/08-sonarcloud.png)
 
