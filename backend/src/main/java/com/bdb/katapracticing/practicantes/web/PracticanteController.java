@@ -145,7 +145,7 @@ public class PracticanteController {
                                                                     @Parameter(hidden = true) WebRequest peticion) {
         Practicante practicante = servicio.obtener(id);
         String etag = ETags.de(practicante.getVersion());
-        if (peticion != null && peticion.checkNotModified(etag)) {
+        if (peticion.checkNotModified(etag)) {
             return ResponseEntity.status(HttpStatus.NOT_MODIFIED).eTag(etag).build();
         }
         return ResponseEntity.ok().eTag(etag).body(ensamblador.toModel(practicante));
@@ -193,10 +193,8 @@ public class PracticanteController {
                 .body(hojaVida.contenido());
     }
 
+    /** La página nunca llega en null: Spring la crea con los valores de {@code @PageableDefault}. */
     private static void validarOrden(Pageable pagina) {
-        if (pagina == null) {
-            return;
-        }
         for (Sort.Order orden : pagina.getSort()) {
             if (!ORDEN_PERMITIDO.contains(orden.getProperty())) {
                 throw new DatoInvalidoException("sort",

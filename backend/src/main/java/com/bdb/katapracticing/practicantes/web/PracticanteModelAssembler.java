@@ -33,10 +33,9 @@ public class PracticanteModelAssembler
         Set<EstadoPracticante> transiciones = practicante.getEstado().transicionesPermitidas();
 
         // self lleva la "affordance" de cambiar estado: en HAL-FORMS se publica como plantilla (_templates).
-        Link self = linkTo(api.obtener(id, null)).withSelfRel();
-        if (!transiciones.isEmpty()) {
-            self = self.andAffordance(afford(api.actualizarEstado(id, null, null)));
-        }
+        // Siempre hay al menos una transición posible (ver EstadoPracticante.transicionesPermitidas).
+        Link self = linkTo(api.obtener(id, null)).withSelfRel()
+                .andAffordance(afford(api.actualizarEstado(id, null, null)));
 
         EntityModel<PracticanteResponse> modelo = EntityModel.of(PracticanteResponse.desde(practicante), self);
         modelo.add(linkTo(api.descargarHojaVida(id)).withRel(RelacionesPracticante.HOJA_VIDA)

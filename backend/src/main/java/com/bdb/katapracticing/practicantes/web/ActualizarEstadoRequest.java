@@ -15,14 +15,6 @@ public class ActualizarEstadoRequest {
     @NotNull(message = "El estado es obligatorio")
     private EstadoPracticante estado;
 
-    public ActualizarEstadoRequest() {
-        // Requerido por Jackson
-    }
-
-    public ActualizarEstadoRequest(EstadoPracticante estado) {
-        this.estado = estado;
-    }
-
     public EstadoPracticante getEstado() {
         return estado;
     }

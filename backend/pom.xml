@@ -170,6 +170,8 @@
                     <excludes>
                         <!-- Solo arranca Spring (main); no tiene lógica que probar -->
                         <exclude>com/bdb/katapracticing/PracticantesApplication.class</exclude>
+                        <!-- Solo documenta el formulario en OpenAPI/Swagger; nunca se instancia en ejecución -->
+                        <exclude>com/bdb/katapracticing/practicantes/web/FormularioRegistroDoc.class</exclude>
                     </excludes>
                 </configuration>
                 <executions>

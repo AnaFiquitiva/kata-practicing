@@ -60,7 +60,7 @@ El **back-end** es un **monolito modular**: una sola aplicación Spring Boot div
 | Indicador | Resultado | Evidencia |
 |---|---|---|
 | Pruebas automatizadas | **98**, todas en verde | [Evidencia E8](#e8-github-actions), [`PracticanteApiTest`](backend/src/test/java/com/bdb/katapracticing/PracticanteApiTest.java) |
-| Cobertura (JaCoCo) | **99 %** de instrucciones, **96 %** de ramas (mínimo exigido: 90 %) | [Evidencia E10](#e10-jacoco) |
+| Cobertura (JaCoCo) | **100 %** de instrucciones, ramas y líneas (mínimo exigido: 90 %) | [Evidencia E10](#e10-jacoco) |
 | Calidad (SonarCloud) | Quality Gate **aprobado**, 0 bugs, 0 vulnerabilidades, 0 % de duplicación | [Evidencia E9](#e9-sonarcloud) |
 | Fronteras de la arquitectura | Verificadas por [`ModulosTest`](backend/src/test/java/com/bdb/katapracticing/ModulosTest.java#L26) | [Sección 4.2](#42-estilo-arquitectónico-monolito-modular) |
 | Madurez REST | **Nivel 3** de Richardson (HAL + HAL-FORMS) | [Sección 4.4](#44-estilo-de-la-api-rest-nivel-3-hateoas), [Evidencia E2](#e2-video-prueba-de-los-endpoints-en-swagger-ui) |
@@ -955,7 +955,7 @@ Cada regla se valida en **varias capas**: si una falla, la siguiente la detiene.
 
 ```bash
 cd backend
-mvn verify      # pruebas + cobertura; falla si la cobertura baja del 90 %
+mvn verify      # pruebas + cobertura (hoy 100 %); falla si la cobertura baja del 90 %
 ```
 
 | Tipo | Clase | Qué comprueba |
@@ -990,7 +990,7 @@ mvn verify      # pruebas + cobertura; falla si la cobertura baja del 90 %
 | E7 | Swagger UI | Contrato OpenAPI 3 documentado | [Ver](#e7-swagger-ui), `http://localhost:3000/api/docs/swagger-ui.html` |
 | E8 | GitHub Actions | Pipeline de CI en verde | [Ver](#e8-github-actions), [Actions](https://github.com/AnaFiquitiva/kata-practicing/actions) |
 | E9 | SonarCloud | Quality Gate aprobado, 0 incidencias | [Ver](#e9-sonarcloud), [Proyecto](https://sonarcloud.io/summary/overall?id=AnaFiquitiva_kata-practicing) |
-| E10 | JaCoCo | 99 % de instrucciones, 96 % de ramas | [Ver](#e10-jacoco) |
+| E10 | JaCoCo | 100 % de instrucciones, ramas y líneas | [Ver](#e10-jacoco) |
 | E11 | Identidad visual | Uso de logos y colores oficiales | [Ver](#e11-identidad-visual) |
 | E12 | Prueba de arquitectura | Las fronteras del monolito modular se cumplen | [`ModulosTest`](backend/src/test/java/com/bdb/katapracticing/ModulosTest.java#L26) |
 
@@ -1048,7 +1048,7 @@ Cada insignia del encabezado tiene su captura de respaldo:
 |---|---|---|---|
 | ![Pruebas y SonarCloud](https://github.com/AnaFiquitiva/kata-practicing/actions/workflows/sonarcloud.yml/badge.svg) | Que el workflow de CI (pruebas, cobertura y análisis) termine bien | Passing | [Evidencia E8](#e8-github-actions) |
 | ![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=AnaFiquitiva_kata-practicing&metric=alert_status) | Que el código cumpla el umbral de calidad de SonarCloud | Passed | [Evidencia E9](#e9-sonarcloud), recuadro "Quality gate" |
-| ![Coverage](https://sonarcloud.io/api/project_badges/measure?project=AnaFiquitiva_kata-practicing&metric=coverage) | Porcentaje de código ejecutado por las pruebas | 98,4 % en SonarCloud (líneas) y 99 % en JaCoCo (instrucciones) | [Evidencia E9](#e9-sonarcloud), recuadro "Coverage", y [Evidencia E10](#e10-jacoco) |
+| ![Coverage](https://sonarcloud.io/api/project_badges/measure?project=AnaFiquitiva_kata-practicing&metric=coverage) | Porcentaje de código ejecutado por las pruebas | 100 % en SonarCloud y en JaCoCo | [Evidencia E9](#e9-sonarcloud), recuadro "Coverage", y [Evidencia E10](#e10-jacoco) |
 | ![Bugs](https://sonarcloud.io/api/project_badges/measure?project=AnaFiquitiva_kata-practicing&metric=bugs) | Errores de código detectados por el análisis estático | 0 | [Evidencia E9](#e9-sonarcloud), recuadro "Reliability" (0 incidencias) |
 
 #### E8. GitHub Actions
@@ -1059,13 +1059,15 @@ Ejecuciones del workflow "Pruebas y SonarCloud" en `main`, todas en verde. Cada 
 
 #### E9. SonarCloud
 
-Quality Gate **Passed**. Security, Reliability (bugs) y Maintainability con **0 incidencias** y calificación **A**, cobertura del **98,4 %** y **0 %** de duplicación, analizando el commit `43a5d16`. [Ver en SonarCloud](https://sonarcloud.io/summary/overall?id=AnaFiquitiva_kata-practicing).
+Quality Gate **Passed**. Security, Reliability (bugs) y Maintainability con **0 incidencias** y calificación **A**, cobertura del **100 %** y **0 %** de duplicación. [Ver en SonarCloud](https://sonarcloud.io/summary/overall?id=AnaFiquitiva_kata-practicing).
 
 ![SonarCloud](docs/capturas/08-sonarcloud.png)
 
 #### E10. JaCoCo
 
-Reporte local generado con `mvn verify` en `backend/target/site/jacoco/index.html`: **99 %** de instrucciones y **96 %** de ramas cubiertas, por encima del mínimo del 90 % que exige el build.
+Reporte local generado con `mvn verify` en `backend/target/site/jacoco/index.html`: **100 %** de instrucciones, ramas, líneas, métodos y clases. El build exige un mínimo del 90 %.
+
+Solo se excluyen de la medición dos clases sin lógica que probar: `PracticantesApplication` (el `main` que arranca Spring) y `FormularioRegistroDoc` (solo describe el formulario en Swagger y nunca se instancia). La exclusión está en el [`pom.xml`](backend/pom.xml) y en [`sonar-project.properties`](sonar-project.properties).
 
 ![JaCoCo](docs/capturas/07-jacoco.png)
 
