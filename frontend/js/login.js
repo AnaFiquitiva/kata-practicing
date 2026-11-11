@@ -1,17 +1,12 @@
 // Inicio de sesión del analista contra la API (POST /api/auth/login → JSON).
-(async () => {
+// `void`: la promesa de arranque se ignora a propósito; sus errores se manejan dentro.
+void (async () => {
   const alerta = document.getElementById("alerta");
   const form = document.getElementById("form-login");
   const boton = document.getElementById("btn-ingresar");
   const params = new URLSearchParams(location.search);
 
-  function mostrar(tipo, texto) {
-    alerta.className = `alerta alerta--${tipo}`;
-    alerta.textContent = texto;
-    alerta.hidden = false;
-  }
-
-  if (params.has("salida")) mostrar("info", "Cerraste sesión correctamente.");
+  if (params.has("salida")) mostrarAlerta(alerta, "info", "Cerraste sesión correctamente.");
 
   // Si ya hay sesión activa, ir directo al panel.
   try {
@@ -26,7 +21,7 @@
     const usuario = form.username.value.trim();
     const clave = form.password.value;
     if (!usuario || !clave) {
-      mostrar("error", "Ingresa usuario y contraseña.");
+      mostrarAlerta(alerta, "error", "Ingresa usuario y contraseña.");
       return;
     }
 
@@ -45,11 +40,11 @@
         return;
       }
       const cuerpo = await res.json().catch(() => ({}));
-      mostrar("error", cuerpo.mensaje || "Usuario o contraseña incorrectos.");
+      mostrarAlerta(alerta, "error", cuerpo.mensaje || "Usuario o contraseña incorrectos.");
       form.password.value = "";
       form.password.focus();
     } catch {
-      mostrar("error", "No hay conexión con el servidor.");
+      mostrarAlerta(alerta, "error", "No hay conexión con el servidor.");
     } finally {
       boton.disabled = false;
       boton.textContent = "Ingresar";

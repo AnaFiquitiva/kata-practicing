@@ -22,6 +22,25 @@ function el(tag, attrs = {}, ...hijos) {
   return nodo;
 }
 
+const temporizadoresAlerta = new WeakMap();
+
+/**
+ * Muestra un mensaje en el contenedor de alertas de la página.
+ * @param {HTMLElement} contenedor  elemento .alerta
+ * @param {"exito"|"error"|"info"} tipo
+ * @param {string} texto
+ * @param {number} [autoOcultarMs]  si se indica, la alerta se oculta sola
+ */
+function mostrarAlerta(contenedor, tipo, texto, autoOcultarMs = 0) {
+  contenedor.className = `alerta alerta--${tipo}`;
+  contenedor.textContent = texto;
+  contenedor.hidden = false;
+  clearTimeout(temporizadoresAlerta.get(contenedor));
+  if (autoOcultarMs > 0) {
+    temporizadoresAlerta.set(contenedor, setTimeout(() => { contenedor.hidden = true; }, autoOcultarMs));
+  }
+}
+
 function formatearFecha(iso) {
   if (!iso) return "—";
   return new Date(iso).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" });

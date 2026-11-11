@@ -13,8 +13,15 @@ RUN mvn -B -q clean package -DskipTests
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-COPY --from=builder /build/target/*.jar app.jar
-RUN mkdir -p /app/data /app/uploads
+# Usuario sin privilegios: si alguien explotara la aplicación, no tendría root dentro del contenedor.
+# UID/GID 1000 coincide con el primer usuario de la mayoría de equipos Linux, así puede escribir en
+# los bind mounts de backend_data/ (en Docker Desktop para Windows/Mac los permisos se mapean solos).
+RUN addgroup -S -g 1000 app && adduser -S -u 1000 -G app app \
+    && mkdir -p /app/data /app/uploads \
+    && chown -R app:app /app
+
+COPY --from=builder --chown=app:app /build/target/*.jar app.jar
+USER app
 
 ENV SPRING_DATASOURCE_URL=jdbc:sqlite:/app/data/practicantes.db \
     APP_UPLOADS_DIR=/app/uploads

@@ -1,17 +1,13 @@
-(async () => {
+// `void`: la promesa de arranque se ignora a propósito; sus errores se manejan dentro (try/catch final).
+void (async () => {
   const estado = { practicantes: [], filtro: "", busqueda: "", seleccionado: null, csrf: null };
 
   const $ = (id) => document.getElementById(id);
   const cuerpoTabla = $("tabla-cuerpo");
   const alerta = $("alerta");
 
-  function mostrarAlerta(tipo, texto) {
-    alerta.className = `alerta alerta--${tipo}`;
-    alerta.textContent = texto;
-    alerta.hidden = false;
-    clearTimeout(mostrarAlerta.t);
-    mostrarAlerta.t = setTimeout(() => (alerta.hidden = true), 4000);
-  }
+  const DURACION_ALERTA_MS = 4000;
+  const avisar = (tipo, texto) => mostrarAlerta(alerta, tipo, texto, DURACION_ALERTA_MS);
 
   async function api(url, opciones = {}) {
     const res = await fetch(url, { credentials: "same-origin", ...opciones });
@@ -99,9 +95,9 @@
       estado.practicantes = estado.practicantes.map(p => (p.id === id ? actualizado : p));
       actualizarResumen();
       renderTabla();
-      mostrarAlerta("exito", `${actualizado.nombreCompleto} quedó marcado como "${ETIQUETA_ESTADO[nuevo]}".`);
+      avisar("exito", `${actualizado.nombreCompleto} quedó marcado como "${ETIQUETA_ESTADO[nuevo]}".`);
     } catch (e) {
-      mostrarAlerta("error", e.message);
+      avisar("error", e.message);
     } finally {
       renderDetalle();
     }
@@ -138,6 +134,6 @@
     estado.csrf = await obtenerCsrf();
     await cargar();
   } catch (e) {
-    mostrarAlerta("error", e.message);
+    avisar("error", e.message);
   }
 })();
