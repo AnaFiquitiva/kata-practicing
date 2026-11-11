@@ -46,6 +46,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -171,7 +172,9 @@ public class PracticanteController {
             @Parameter(in = ParameterIn.HEADER, description = "ETag leída, por ejemplo \"0\"", example = "\"0\"")
             @RequestHeader(value = HttpHeaders.IF_MATCH, required = false) String ifMatch,
             @Valid @RequestBody ActualizarEstadoRequest cuerpo) {
-        Practicante actualizado = servicio.actualizarEstado(id, cuerpo.getEstado(), ETags.versionDe(ifMatch));
+        // El cuerpo solo es null cuando Spring HATEOAS invoca el método por proxy para construir un enlace.
+        EstadoPracticante nuevoEstado = Optional.ofNullable(cuerpo).map(ActualizarEstadoRequest::getEstado).orElse(null);
+        Practicante actualizado = servicio.actualizarEstado(id, nuevoEstado, ETags.versionDe(ifMatch));
         return ResponseEntity.ok()
                 .eTag(ETags.de(actualizado.getVersion()))
                 .body(ensamblador.toModel(actualizado));
@@ -194,9 +197,13 @@ public class PracticanteController {
                 .body(hojaVida.contenido());
     }
 
-    /** La página nunca llega en null: Spring la crea con los valores de {@code @PageableDefault}. */
+    /**
+     * En una petición real Spring crea la página con {@code @PageableDefault}. Solo llega en null cuando
+     * Spring HATEOAS invoca el método a través de un proxy para construir un enlace; en ese caso no hay orden.
+     */
     private static void validarOrden(Pageable pagina) {
-        for (Sort.Order orden : pagina.getSort()) {
+        Sort criterios = Optional.ofNullable(pagina).map(Pageable::getSort).orElseGet(Sort::unsorted);
+        for (Sort.Order orden : criterios) {
             if (!ORDEN_PERMITIDO.contains(orden.getProperty())) {
                 throw new DatoInvalidoException("sort",
                         "No se puede ordenar por '" + orden.getProperty() + "'. Campos permitidos: " + ORDEN_PERMITIDO);
