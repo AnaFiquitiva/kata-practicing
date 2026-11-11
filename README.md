@@ -613,10 +613,18 @@ La interfaz usa el logotipo y los colores oficiales del Banco de Bogotá. El det
 
 ## Capturas
 
+### Panel del analista
+
+Resumen por estado, lista con búsqueda y filtros, y detalle del practicante con los botones **Viable** / **No viable** y la descarga de la hoja de vida. Los datos de la captura son ficticios.
+
+![Panel del analista](docs/capturas/02-panel-analista.png)
+
+### Registro e inicio de sesión
+
 | Registro | Login analista |
 |---|---|
 | ![Registro](docs/capturas/01-registro.png) | ![Login](docs/capturas/03-login.png) |
 
-![Identidad visual y fuentes](docs/capturas/04-identidad-visual.png)
+### Identidad visual
 
-> Pendiente: captura del panel del analista en `docs/capturas/02-panel-analista.png`.
+![Identidad visual y fuentes](docs/capturas/04-identidad-visual.png)
