@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel de Analista | Banco de Bogotá</title>
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="encabezado">
+    <div class="encabezado__contenido">
+      <a class="marca" href="/analista.html" aria-label="Banco de Bogotá – Panel de selección">
+        <img class="marca__logo" src="/img/logo-banco-de-bogota.png" alt="Banco de Bogotá" width="1430" height="232">
+        <span class="marca__sub">Panel de selección</span>
+      </a>
+      <div class="encabezado__acciones">
+        <span id="usuario-actual"></span>
+        <button id="btn-salir" class="boton--enlace" type="button">Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <section class="resumen" aria-label="Resumen">
+      <div class="resumen__item"><div class="resumen__valor" id="cnt-total">0</div><div class="resumen__etiqueta">Registrados</div></div>
+      <div class="resumen__item resumen__item--pendiente"><div class="resumen__valor" id="cnt-PENDIENTE">0</div><div class="resumen__etiqueta">Pendientes</div></div>
+      <div class="resumen__item resumen__item--viable"><div class="resumen__valor" id="cnt-VIABLE">0</div><div class="resumen__etiqueta">Viables</div></div>
+      <div class="resumen__item resumen__item--no-viable"><div class="resumen__valor" id="cnt-NO_VIABLE">0</div><div class="resumen__etiqueta">No viables</div></div>
+    </section>
+
+    <div id="alerta" class="alerta" role="status" hidden></div>
+
+    <div class="panel">
+      <section class="tarjeta">
+        <h2>Practicantes registrados</h2>
+        <div class="barra-filtros">
+          <input id="buscar" type="search" placeholder="Buscar por nombre, correo o carrera…" aria-label="Buscar">
+          <div class="filtros" id="filtros">
+            <button class="filtro activo" data-estado="">Todos</button>
+            <button class="filtro" data-estado="PENDIENTE">Pendientes</button>
+            <button class="filtro" data-estado="VIABLE">Viables</button>
+            <button class="filtro" data-estado="NO_VIABLE">No viables</button>
+          </div>
+        </div>
+        <div class="tabla-envoltura">
+          <table>
+            <thead>
+              <tr><th>Practicante</th><th>Carrera</th><th>Sem.</th><th>Estado</th></tr>
+            </thead>
+            <tbody id="tabla-cuerpo"></tbody>
+          </table>
+        </div>
+        <p id="sin-resultados" class="vacio" hidden>No hay practicantes para mostrar.</p>
+      </section>
+
+      <aside class="tarjeta detalle" id="detalle" aria-live="polite">
+        <h2>Detalle del practicante</h2>
+        <p class="vacio" id="detalle-vacio">Selecciona un practicante de la lista para ver su información.</p>
+        <div id="detalle-contenido" hidden>
+          <dl>
+            <dt>Nombre</dt><dd id="d-nombre"></dd>
+            <dt>Correo</dt><dd id="d-correo"></dd>
+            <dt>Carrera</dt><dd id="d-carrera"></dd>
+            <dt>Semestre</dt><dd id="d-semestre"></dd>
+            <dt>Registro</dt><dd id="d-fecha"></dd>
+            <dt>Estado</dt><dd id="d-estado"></dd>
+            <dt>Hoja de vida</dt><dd id="d-hv"></dd>
+          </dl>
+          <a id="d-descargar" class="boton boton--secundario boton--bloque" href="#">Descargar hoja de vida (PDF)</a>
+          <div class="detalle__acciones">
+            <button class="boton boton--viable" data-accion="VIABLE">✔ Viable</button>
+            <button class="boton boton--no-viable" data-accion="NO_VIABLE">✖ No viable</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="pie">
+    <div class="pie__contenido">
+      <img class="pie__logo" src="/img/logo-banco-de-bogota-blanco.png" alt="Banco de Bogotá" width="330" height="55">
+      <p class="pie__texto">Reto técnico – Programa de Practicantes. Proyecto académico; no es un sitio oficial del Banco de Bogotá.
+        <a href="/marca.html">Identidad visual y fuentes</a></p>
+    </div>
+  </footer>
+
+  <script src="/js/comun.js"></script>
+  <script src="/js/analista.js"></script>
+</body>
+</html>

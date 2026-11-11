@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Identidad visual y fuentes | Banco de Bogotá</title>
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="encabezado">
+    <div class="encabezado__contenido">
+      <a class="marca" href="/" aria-label="Banco de Bogotá – Programa de Practicantes">
+        <img class="marca__logo" src="/img/logo-banco-de-bogota.png" alt="Banco de Bogotá" width="1430" height="232">
+        <span class="marca__sub">Programa de Practicantes</span>
+      </a>
+      <a class="enlace-claro" href="/">Formulario de registro</a>
+    </div>
+  </header>
+
+  <section class="franja">
+    <div class="franja__contenido">
+      <div class="franja__miga">Documentación del proyecto</div>
+      <h1>Identidad visual y fuentes</h1>
+      <p>De dónde salen el logotipo y los colores de esta aplicación, cómo se verificaron y qué queda pendiente de confirmar.</p>
+    </div>
+  </section>
+
+  <main class="contenedor">
+    <section class="tarjeta prosa">
+      <h2>1. Logotipo</h2>
+      <p>Los archivos de logotipo de esta aplicación son los publicados por el banco en su
+        <a href="https://saladeprensa.bancodebogota.com/logos-y-marca/" target="_blank" rel="noopener noreferrer">Sala de Prensa – Logos y marca</a>
+        (archivos con fecha de carga de diciembre de 2022). Solo se recortaron los márgenes; no se modificaron sus formas ni sus colores.</p>
+      <div class="logos">
+        <figure>
+          <div class="lienzo"><img src="/img/logo-banco-de-bogota.png" alt="Logotipo-símbolo principal a color"></div>
+          <figcaption>Logotipo-símbolo principal (fondo transparente) — <code>Logotipo-Simbolo-Principal-1-1.png</code></figcaption>
+        </figure>
+        <figure>
+          <div class="lienzo lienzo--azul"><img src="/img/logo-banco-de-bogota-blanco.png" alt="Logotipo-símbolo principal en blanco"></div>
+          <figcaption>Versión en blanco sobre azul institucional — <code>Logotipo-Simbolo-Principal-blanco.png</code></figcaption>
+        </figure>
+        <figure>
+          <div class="lienzo"><img src="/img/isotipo.png" alt="Isotipo del Banco de Bogotá"></div>
+          <figcaption>Isotipo (usado como favicon) — <code>Isotipo.png</code></figcaption>
+        </figure>
+      </div>
+      <p><span class="etiqueta etiqueta--error">Descartado</span>
+        Una imagen del logo hallada en un buscador de imágenes no se usó: corresponde a una versión anterior del símbolo
+        (con degradados y el texto debajo), y era un archivo JPG con el cuadriculado de "transparencia" dibujado dentro de la imagen.
+        Tampoco se encontró un SVG oficial ni un archivo del logo en Wikimedia Commons.</p>
+    </section>
+
+    <section class="tarjeta prosa">
+      <h2>2. Colores verificados</h2>
+      <p><strong>Método:</strong> se descargaron los PNG oficiales de la Sala de Prensa y se contaron sus píxeles opacos por color.
+        Los logotipos usan colores planos, así que cada color de marca aparece como un valor exacto.</p>
+      <div class="muestras">
+        <div class="muestra">
+          <div class="muestra__color c-14327D"></div>
+          <div class="muestra__info">
+            <div class="muestra__nombre">Azul institucional</div>
+            <div class="muestra__hex">#14327D</div>
+            <div class="muestra__nota"><span class="etiqueta etiqueta--ok">Verificado</span> Texto del logotipo y fondo de la versión en blanco.</div>
+          </div>
+        </div>
+        <div class="muestra">
+          <div class="muestra__color c-FFBE00"></div>
+          <div class="muestra__info">
+            <div class="muestra__nombre">Amarillo del símbolo</div>
+            <div class="muestra__hex">#FFBE00</div>
+            <div class="muestra__nota"><span class="etiqueta etiqueta--ok">Verificado</span> Valor real en los PNG oficiales.</div>
+          </div>
+        </div>
+        <div class="muestra">
+          <div class="muestra__color c-CD3232"></div>
+          <div class="muestra__info">
+            <div class="muestra__nombre">Rojo del símbolo</div>
+            <div class="muestra__hex">#CD3232</div>
+            <div class="muestra__nota"><span class="etiqueta etiqueta--ok">Verificado</span> Valor real en los PNG oficiales.</div>
+          </div>
+        </div>
+      </div>
+      <div class="tabla-envoltura">
+        <table class="tabla-simple">
+          <thead><tr><th>Archivo oficial</th><th>Tamaño</th><th>Colores encontrados (de más a menos píxeles)</th></tr></thead>
+          <tbody>
+            <tr><td>Logotipo-Simbolo-Principal-1-1.png</td><td>1585 × 271</td><td>#14327D · #FFBE00 · #CD3232</td></tr>
+            <tr><td>Logotipo-Simbolo-Principal.png</td><td>424 × 309</td><td>#14327D · #FFBE00 · #CD3232</td></tr>
+            <tr><td>Logotipo-Simbolo-Secundario.png</td><td>424 × 309</td><td>#14327D · #FFBE00 · #CD3232</td></tr>
+            <tr><td>Isotipo.png</td><td>424 × 309</td><td>#FFBE00 · #CD3232</td></tr>
+            <tr><td>Logotipo-Simbolo-Principal-blanco.png</td><td>424 × 309</td><td>Fondo #14327D</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><span class="etiqueta etiqueta--pendiente">Diferencia</span>
+        Una referencia secundaria atribuía al manual 2022 el amarillo <code>#EBB932</code>. Los archivos digitales oficiales usan
+        <code>#FFBE00</code>, y es el que adopta esta aplicación. Puede que el manual dé otro valor (por ejemplo, para impresión),
+        pero no se pudo comprobar (ver sección 3).</p>
+    </section>
+
+    <section class="tarjeta prosa">
+      <h2>3. Pendiente de confirmar en el manual de marca</h2>
+      <p>El banco enlaza su <a href="https://www.bancodebogota.com/wps/themes/html/banco-de-bogota/pdf/nuestra-organizacion/manual-de-marca.pdf" target="_blank" rel="noopener noreferrer">Manual de marca digital (PDF)</a>
+        desde la Sala de Prensa. El servidor bloquea la descarga automatizada (HTTP 403), así que su contenido no se pudo leer para esta verificación.
+        Hay una copia de terceros en <a href="https://www.scribd.com/document/683185308/manual-de-marca" target="_blank" rel="noopener noreferrer">Scribd</a>
+        ("Manual de Marca Banco de Bogotá 2022", 148 páginas), pero su página pública solo muestra la descripción, no los valores de color.</p>
+      <p>Esta paleta corporativa de comunicación se atribuye al manual 2022 en una referencia secundaria. <strong>No se usa en la aplicación</strong> hasta confirmarla en el PDF:</p>
+      <div class="muestras">
+        <div class="muestra"><div class="muestra__color c-D7733C"></div><div class="muestra__info"><div class="muestra__nombre">Naranja</div><div class="muestra__hex">#D7733C</div><div class="muestra__nota"><span class="etiqueta etiqueta--pendiente">Sin verificar</span></div></div></div>
+        <div class="muestra"><div class="muestra__color c-EBCD5A"></div><div class="muestra__info"><div class="muestra__nombre">Amarillo</div><div class="muestra__hex">#EBCD5A</div><div class="muestra__nota"><span class="etiqueta etiqueta--pendiente">Sin verificar</span></div></div></div>
+        <div class="muestra"><div class="muestra__color c-919150"></div><div class="muestra__info"><div class="muestra__nombre">Verde</div><div class="muestra__hex">#919150</div><div class="muestra__nota"><span class="etiqueta etiqueta--pendiente">Sin verificar</span></div></div></div>
+        <div class="muestra"><div class="muestra__color c-8CAFBE"></div><div class="muestra__info"><div class="muestra__nombre">Azul</div><div class="muestra__hex">#8CAFBE</div><div class="muestra__nota"><span class="etiqueta etiqueta--pendiente">Sin verificar</span></div></div></div>
+        <div class="muestra"><div class="muestra__color c-F0BEC3"></div><div class="muestra__info"><div class="muestra__nombre">Rosa</div><div class="muestra__hex">#F0BEC3</div><div class="muestra__nota"><span class="etiqueta etiqueta--pendiente">Sin verificar</span></div></div></div>
+        <div class="muestra"><div class="muestra__color c-C8AABE"></div><div class="muestra__info"><div class="muestra__nombre">Lila</div><div class="muestra__hex">#C8AABE</div><div class="muestra__nota"><span class="etiqueta etiqueta--pendiente">Sin verificar</span></div></div></div>
+      </div>
+      <p><strong>Tipografía:</strong> la tipografía corporativa no está disponible públicamente. La aplicación usa
+        <a href="https://fonts.google.com/specimen/Montserrat" target="_blank" rel="noopener noreferrer">Montserrat</a> (licencia SIL Open Font License) como sustituto.</p>
+    </section>
+
+    <section class="tarjeta prosa">
+      <h2>4. Referencias</h2>
+      <p>Consultadas el 9 de noviembre de 2026.</p>
+      <ol>
+        <li>Banco de Bogotá. <em>Logos y marca</em>. Sala de Prensa.
+          <a href="https://saladeprensa.bancodebogota.com/logos-y-marca/" target="_blank" rel="noopener noreferrer">saladeprensa.bancodebogota.com/logos-y-marca/</a>
+          — fuente de los logotipos y de los colores verificados.</li>
+        <li>Banco de Bogotá. <em>Manual de marca digital BDB</em> (PDF).
+          <a href="https://www.bancodebogota.com/wps/themes/html/banco-de-bogota/pdf/nuestra-organizacion/manual-de-marca.pdf" target="_blank" rel="noopener noreferrer">bancodebogota.com/…/manual-de-marca.pdf</a>
+          — fuente oficial de la paleta completa y la tipografía (pendiente de revisión manual).</li>
+        <li><em>Manual de Marca Banco de Bogotá 2022</em>. Copia de terceros en Scribd.
+          <a href="https://www.scribd.com/document/683185308/manual-de-marca" target="_blank" rel="noopener noreferrer">scribd.com/document/683185308</a>
+          — confirma la existencia y la extensión (148 páginas) del manual 2022. No es una fuente oficial.</li>
+      </ol>
+      <p><strong>Uso de la marca:</strong> "Banco de Bogotá" y su logotipo son marcas registradas del Banco de Bogotá.
+        Aquí se usan solo con fines académicos, para un reto técnico. Esta aplicación no es un sitio oficial del banco.</p>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="pie__contenido">
+      <img class="pie__logo" src="/img/logo-banco-de-bogota-blanco.png" alt="Banco de Bogotá" width="330" height="55">
+      <p class="pie__texto">Reto técnico – Programa de Practicantes. Proyecto académico; no es un sitio oficial del Banco de Bogotá.
+        Logotipo y colores tomados de la <a href="https://saladeprensa.bancodebogota.com/logos-y-marca/" target="_blank" rel="noopener noreferrer">Sala de Prensa oficial</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

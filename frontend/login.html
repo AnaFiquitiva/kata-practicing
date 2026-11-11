@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acceso Analistas | Banco de Bogotá</title>
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="encabezado">
+    <div class="encabezado__contenido">
+      <a class="marca" href="/" aria-label="Banco de Bogotá – Selección de Practicantes">
+        <img class="marca__logo" src="/img/logo-banco-de-bogota.png" alt="Banco de Bogotá" width="1430" height="232">
+        <span class="marca__sub">Selección de Practicantes</span>
+      </a>
+      <a class="enlace-claro" href="/">Formulario de registro</a>
+    </div>
+  </header>
+
+  <main class="contenedor contenedor--angosto">
+    <div class="tarjeta">
+      <h2>Acceso para analistas de selección</h2>
+      <div id="alerta" class="alerta" role="status" hidden></div>
+
+      <form id="form-login" novalidate>
+        <div class="campo">
+          <label for="username">Usuario</label>
+          <input id="username" name="username" type="text" autocomplete="username" required>
+        </div>
+        <div class="campo">
+          <label for="password">Contraseña</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button id="btn-ingresar" class="boton boton--primario boton--bloque" type="submit" disabled>Ingresar</button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="pie">
+    <div class="pie__contenido">
+      <img class="pie__logo" src="/img/logo-banco-de-bogota-blanco.png" alt="Banco de Bogotá" width="330" height="55">
+      <p class="pie__texto">Reto técnico – Programa de Practicantes. Proyecto académico; no es un sitio oficial del Banco de Bogotá.
+        <a href="/marca.html">Identidad visual y fuentes</a></p>
+    </div>
+  </footer>
+
+  <script src="/js/comun.js"></script>
+  <script src="/js/login.js"></script>
+</body>
+</html>

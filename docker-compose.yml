@@ -1,0 +1,35 @@
+name: kata-practicing
+
+services:
+  backend:
+    build:
+      context: ./backend
+    image: kata-practicing-backend
+    container_name: practicantes-api
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    volumes:
+      - ./backend_data/db:/app/data
+      - ./backend_data/uploads:/app/uploads
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:sqlite:/app/data/practicantes.db
+      - APP_UPLOADS_DIR=/app/uploads
+      - ANALISTA_USUARIO=${ANALISTA_USUARIO:-analista}
+      - ANALISTA_PASSWORD=${ANALISTA_PASSWORD:-Bogota2026*}
+    restart: unless-stopped
+
+  frontend:
+    image: nginx:1.27-alpine
+    container_name: practicantes-ui
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./frontend/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    environment:
+      - BACKEND_URL=http://backend:8080
+      - NGINX_ENVSUBST_FILTER=^BACKEND_URL$
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped

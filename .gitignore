@@ -1,0 +1,14 @@
+# Compilación
+target/
+
+# Datos persistentes (base de datos y hojas de vida): se crean al ejecutar
+backend_data/db/*
+backend_data/uploads/*
+!backend_data/**/.gitkeep
+*.db
+*.db-journal
+
+# IDE
+.idea/
+*.iml
+.vscode/

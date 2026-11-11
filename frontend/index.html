@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro de Practicantes | Banco de Bogotá</title>
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <header class="encabezado">
+    <div class="encabezado__contenido">
+      <a class="marca" href="/" aria-label="Banco de Bogotá – Programa de Practicantes">
+        <img class="marca__logo" src="/img/logo-banco-de-bogota.png" alt="Banco de Bogotá" width="1430" height="232">
+        <span class="marca__sub">Programa de Practicantes</span>
+      </a>
+      <a class="enlace-claro" href="/analista.html">Acceso analistas</a>
+    </div>
+  </header>
+
+  <section class="franja">
+    <div class="franja__contenido">
+      <div class="franja__miga">Talento joven · Prácticas profesionales</div>
+      <h1>Postúlate como practicante</h1>
+      <p>Completa tus datos y adjunta tu hoja de vida en PDF. Nuestro equipo de selección revisará tu perfil.</p>
+    </div>
+  </section>
+
+  <main class="contenedor contenedor--angosto">
+    <div class="tarjeta">
+      <h2>Formulario de registro</h2>
+      <div id="alerta" class="alerta" role="status" hidden></div>
+
+      <form id="form-registro" novalidate>
+        <div class="campo">
+          <label for="nombreCompleto">Nombre completo <span class="obligatorio">*</span></label>
+          <input id="nombreCompleto" name="nombreCompleto" type="text" maxlength="120" autocomplete="name" required>
+          <div class="campo__error" data-error-de="nombreCompleto"></div>
+        </div>
+
+        <div class="campo">
+          <label for="correo">Correo electrónico <span class="obligatorio">*</span></label>
+          <input id="correo" name="correo" type="email" maxlength="120" autocomplete="email" required>
+          <div class="campo__error" data-error-de="correo"></div>
+        </div>
+
+        <div class="fila">
+          <div class="campo">
+            <label for="carrera">Carrera universitaria <span class="obligatorio">*</span></label>
+            <input id="carrera" name="carrera" type="text" maxlength="120" required>
+            <div class="campo__error" data-error-de="carrera"></div>
+          </div>
+          <div class="campo">
+            <label for="semestre">Semestre actual <span class="obligatorio">*</span></label>
+            <select id="semestre" name="semestre" required>
+              <option value="">Selecciona…</option>
+            </select>
+            <div class="campo__error" data-error-de="semestre"></div>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="hojaVida">Hoja de vida (PDF) <span class="obligatorio">*</span></label>
+          <input id="hojaVida" name="hojaVida" type="file" accept="application/pdf,.pdf" required>
+          <div class="campo__ayuda">Solo archivos PDF, máximo 5 MB.</div>
+          <div class="campo__error" data-error-de="hojaVida"></div>
+        </div>
+
+        <button id="btn-enviar" class="boton boton--primario boton--bloque" type="submit">Enviar registro</button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="pie">
+    <div class="pie__contenido">
+      <img class="pie__logo" src="/img/logo-banco-de-bogota-blanco.png" alt="Banco de Bogotá" width="330" height="55">
+      <p class="pie__texto">Reto técnico – Programa de Practicantes. Proyecto académico; no es un sitio oficial del Banco de Bogotá.
+        Logotipo y colores tomados de la <a href="https://saladeprensa.bancodebogota.com/logos-y-marca/" target="_blank" rel="noopener noreferrer">Sala de Prensa oficial</a>.
+        <a href="/marca.html">Identidad visual y fuentes</a></p>
+    </div>
+  </footer>
+
+  <script src="/js/comun.js"></script>
+  <script src="/js/registro.js"></script>
+</body>
+</html>
