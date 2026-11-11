@@ -1,6 +1,6 @@
 package com.bdb.katapracticing;
 
-import com.bdb.katapracticing.repository.PracticanteRepository;
+import com.bdb.katapracticing.practicantes.persistencia.PracticanteRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +8,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.TestPropertySource;
@@ -17,6 +19,8 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 
 import java.nio.charset.StandardCharsets;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -85,7 +89,7 @@ class PracticanteApiTest {
         mvc.perform(get("/api/practicantes/{id}/hoja-vida", id).with(user("analista").roles("ANALISTA")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_PDF))
-                .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("attachment")))
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("attachment")))
                 .andExpect(content().bytes(PDF));
     }
 
@@ -95,7 +99,8 @@ class PracticanteApiTest {
                 .andExpect(status().isBadRequest())
                 .andReturn().getResponse().getContentAsString();
         JsonNode errores = json.readTree(respuesta).get("errores");
-        assert errores.has("nombreCompleto") && errores.has("correo");
+        assertThat(errores.has("nombreCompleto")).isTrue();
+        assertThat(errores.has("correo")).isTrue();
     }
 
     @Test
@@ -131,13 +136,13 @@ class PracticanteApiTest {
 
     @Test
     void login_conCredencialesCorrectas_creaSesion() throws Exception {
-        var sesion = mvc.perform(post("/api/auth/login").with(csrf())
+        MockHttpSession sesion = (MockHttpSession) mvc.perform(post("/api/auth/login").with(csrf())
                         .param("username", "analista").param("password", "Bogota2026*"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.usuario").value("analista"))
                 .andReturn().getRequest().getSession(false);
 
-        mvc.perform(get("/api/auth/me").session((org.springframework.mock.web.MockHttpSession) sesion))
+        mvc.perform(get("/api/auth/me").session(sesion))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.usuario").value("analista"));
     }
@@ -155,5 +160,55 @@ class PracticanteApiTest {
         mvc.perform(get("/actuator/health"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("UP"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ANALISTA")
+    void practicanteInexistente_devuelve404() throws Exception {
+        mvc.perform(get("/api/practicantes/{id}", 9999))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.mensaje").exists())
+                .andExpect(jsonPath("$.errores").doesNotExist());
+    }
+
+    @Test
+    void cambiarEstadoSinTokenCsrf_esRechazado() throws Exception {
+        mvc.perform(patch("/api/practicantes/1/estado").with(user("analista").roles("ANALISTA"))
+                        .contentType(MediaType.APPLICATION_JSON).content("{\"estado\":\"VIABLE\"}"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void detalleDeUnPracticante_devuelveSusDatosSinRutaInterna() throws Exception {
+        String respuesta = mvc.perform(registro("Sofía Ruiz", "sofia@correo.com", PDF, "cv.pdf"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        long id = json.readTree(respuesta).get("id").asLong();
+
+        mvc.perform(get("/api/practicantes/{id}", id).with(user("analista").roles("ANALISTA")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nombreCompleto").value("Sofía Ruiz"))
+                .andExpect(jsonPath("$.hojaVidaUrl").value("/api/practicantes/" + id + "/hoja-vida"))
+                .andExpect(jsonPath("$.hojaVidaArchivo").doesNotExist());
+    }
+
+    @Test
+    void registroSinHojaDeVida_devuelve400EnElCampoHojaVida() throws Exception {
+        mvc.perform(multipart("/api/practicantes")
+                        .param("nombreCompleto", "Sin Archivo")
+                        .param("correo", "sin@correo.com")
+                        .param("carrera", "Derecho")
+                        .param("semestre", "2")
+                        .with(csrf()))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errores.hojaVida").value("La hoja de vida (PDF) es obligatoria"));
+    }
+
+    @Test
+    void tokenCsrf_esPublicoYDiceQueCabeceraUsar() throws Exception {
+        mvc.perform(get("/api/csrf"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").isNotEmpty())
+                .andExpect(jsonPath("$.headerName").value("X-CSRF-TOKEN"));
     }
 }

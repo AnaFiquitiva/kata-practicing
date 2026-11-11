@@ -1,0 +1,39 @@
+name: Pruebas y SonarCloud
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  analisis:
+    name: Pruebas, cobertura y análisis
+    runs-on: ubuntu-latest
+    env:
+      # Si el secreto aún no existe, las pruebas corren igual y solo se omite el análisis.
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # historial completo: SonarCloud lo usa para detectar "código nuevo"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Pruebas + cobertura (JaCoCo)
+        working-directory: backend
+        run: mvn -B verify dependency:copy-dependencies -DoutputDirectory=target/dependency
+
+      - name: Análisis SonarCloud
+        if: ${{ env.SONAR_TOKEN != '' }}
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_HOST_URL: https://sonarcloud.io
