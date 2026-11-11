@@ -972,6 +972,7 @@ mvn verify      # pruebas + cobertura (hoy 100 %); falla si la cobertura baja de
 - **Build sin advertencias:** el agente de Mockito/Byte Buddy se carga con `-javaagent` ([`pom.xml`](backend/pom.xml#L160)), no dinámicamente, algo que el JDK 21 advierte. El único `WARN` del log es intencional: la prueba de *path traversal* con `../secreto.txt`.
 - **Hallazgos corregidos del primer análisis de SonarCloud:** promesas sin manejar en `analista.js` y `login.js`, una expresión regular con riesgo de ReDoS en `registro.js` y el contenedor que corría como `root`.
 - **Hallazgo corregido al agregar HATEOAS:** SonarCloud detectó un posible *request forgery* (reglas `S5144` y `S8476`) porque el panel seguía los enlaces de la API sin validarlos. Ahora [`rutaDeLaApi`](frontend/js/analista.js) solo permite enlaces del mismo origen bajo `/api`, y el Quality Gate volvió a quedar en **Passed** (commit `43a5d16`).
+- **Hallazgos corregidos al subir la cobertura al 100 %:** SonarCloud marcó posibles `NullPointerException` (regla `S2259`) porque Spring HATEOAS construye los enlaces invocando los métodos del controlador con parámetros `null` a través de un proxy. Se corrigió recibiendo `If-None-Match` como cabecera opcional ([`ETags.coincide`](backend/src/main/java/com/bdb/katapracticing/compartido/ETags.java)) y leyendo la página y el cuerpo con `Optional`. Resultado: Quality Gate **Passed**, **100 %** de cobertura y **0** incidencias (commit `875ce9b`).
 
 ---
 
